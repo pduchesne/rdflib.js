@@ -56,6 +56,15 @@ export class Serializer {
     return this
   }
 
+  addFlags(flags) {
+    for (let flag of flags) {
+      if (!this.flags.includes(flag))
+        this.flags += flag;
+    }
+
+    return this
+  }
+
   toStr(x) {
     var s = x.toNT()
     if (x.termType === 'Graph') {
