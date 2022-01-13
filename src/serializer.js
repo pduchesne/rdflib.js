@@ -18,6 +18,25 @@ export default function createSerializer(store) {
   return new Serializer(store);
 };
 
+/**
+ * Possible flag values :
+ *  - d prevent omission of default namespace prefix when prefixing a symbol in said namespace
+ *  - e use unicode encoding in strings
+ *  - i use '=>' as alias for http://www.w3.org/2000/10/swap/log#implies
+ *  - k in conjunction with 'd', allows non-keyword local names to not have a leading ':'
+ *  - m disable making up of prefixes; stick with explicitly defined namespaceprefixes
+ *  - n disable multi-line representation of long strings
+ *  - p do not split symbols into prefixes and local names
+ *  - q use quads
+ *  - r prevent relativization of URIs against the base URI
+ *  - s use '=' as alias for http://www.w3.org/2002/07/owl#sameAs
+ *  - t use 'a' as alias for http://www.w3.org/1999/02/22-rdf-syntax-ns#type
+ *  - u use unicode encoding in URIs
+ *  - x do not suppress native numbers
+ *  - z use relative URLs for xmlns definitions in XML serialization
+ *  - / prevent usage of slash as delimiter between namespace and local name
+ *
+ */
 export class Serializer {
   constructor(store) {
     this.flags = ''
@@ -657,7 +676,7 @@ export class Serializer {
         }
         // this.checkIntegrity() //  @@@ Remove when not testing
         var prefix = this.prefixes[namesp]
-        if (!prefix) prefix = this.makeUpPrefix(namesp)
+        if (!prefix && !this.flags.includes('m')) prefix = this.makeUpPrefix(namesp)
         if (prefix) {
           this.namespacesUsed[namesp] = true
           return prefix + ':' + localid
@@ -988,7 +1007,7 @@ export class Serializer {
         return localid
       }
       var prefix = this.prefixes[namesp]
-      if (!prefix) prefix = this.makeUpPrefix(namesp)
+      if (!prefix && !this.flags.includes('m')) prefix = this.makeUpPrefix(namesp)
       namespaceCounts[namesp] = true
       return prefix + ':' + localid
     }
