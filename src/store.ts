@@ -52,6 +52,7 @@ import {
   Term,
 } from './tf-types'
 import { namedNode } from './index'
+import serialize from "./serialize";
 import BlankNode from './blank-node'
 import DefaultGraph from './default-graph'
 import Empty from './empty'
@@ -1046,6 +1047,13 @@ export default class IndexedFormula extends Formula { // IN future - allow pass 
     if (prefix.slice(0, 2) === 'ns' || prefix.slice(0, 7) === 'default') {
       return
     }
+
+    // remove any prefix that currently targets nsuri
+    for (let existingPrefix in this.namespaces) {
+      if (this.namespaces[existingPrefix] == nsuri)
+        delete this.namespaces[existingPrefix];
+    }
+
     this.namespaces[prefix] = nsuri
   }
 
@@ -1153,6 +1161,14 @@ export default class IndexedFormula extends Formula { // IN future - allow pass 
       }
     }
     return res
+  }
+
+  serialize (base, contentType, provenance) {
+
+    // override Formula.serialize to force the serializer namespace prefixes
+    // to those of this IndexedFormula
+    const namespaces = this.namespaces;
+    return serialize(provenance, this, base, contentType, undefined, { namespaces });
   }
 }
 IndexedFormula.handleRDFType = handleRDFType
