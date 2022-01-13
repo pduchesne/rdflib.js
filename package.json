@@ -1,7 +1,7 @@
 {
-  "name": "rdflib",
+  "name": "@pduchesne/rdflib",
   "description": "an RDF library for node.js. Suitable for client and server side.",
-  "version": "2.2.14",
+  "version": "2.2.14-DV",
   "engines": {
     "node": ">=6.0"
   },
@@ -39,7 +39,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git://github.com/linkeddata/rdflib.js.git"
+    "url": "git://github.com/pduchesne/rdflib.js.git"
   },
   "homepage": "http://github.com/linkeddata/rdflib.js",
   "bugs": "http://github.com/linkeddata/rdflib.js/issues",
@@ -154,5 +154,8 @@
       "tabulator",
       "WebSocket"
     ]
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
   }
 }
