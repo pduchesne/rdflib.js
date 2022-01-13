@@ -56,6 +56,15 @@ export class Serializer {
     return this
   }
 
+  addFlags(flags) {
+    for (let flag of flags) {
+      if (!this.flags.includes(flag))
+        this.flags += flag;
+    }
+
+    return this
+  }
+
   toStr(x) {
     var s = x.toNT()
     if (x.termType === 'Graph') {
@@ -567,7 +576,7 @@ export class Serializer {
   forbidden1 = new RegExp(/[\\"\b\f\r\v\t\n\u0080-\uffff]/gm)
   forbidden3 = new RegExp(/[\\"\b\f\r\v\u0080-\uffff]/gm)
   stringToN3(str, flags) {
-    if (!flags) flags = 'e'
+    if (!flags) flags = this.flags || 'e';
     var res = ''
     var i, j, k
     var delim
