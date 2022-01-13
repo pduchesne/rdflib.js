@@ -24,6 +24,7 @@ export default function createSerializer(store) {
  *  - e use unicode encoding in strings
  *  - i use '=>' as alias for http://www.w3.org/2000/10/swap/log#implies
  *  - k in conjunction with 'd', allows non-keyword local names to not have a leading ':'
+ *  - m disable making up of prefixes; stick with explicitly defined namespaceprefixes
  *  - n disable multi-line representation of long strings
  *  - p do not split symbols into prefixes and local names
  *  - q use quads
@@ -635,7 +636,7 @@ export class Serializer {
         }
         // this.checkIntegrity() //  @@@ Remove when not testing
         var prefix = this.prefixes[namesp]
-        if (!prefix) prefix = this.makeUpPrefix(namesp)
+        if (!prefix && !this.flags.includes('m')) prefix = this.makeUpPrefix(namesp)
         if (prefix) {
           this.namespacesUsed[namesp] = true
           return prefix + ':' + localid
@@ -966,7 +967,7 @@ export class Serializer {
         return localid
       }
       var prefix = this.prefixes[namesp]
-      if (!prefix) prefix = this.makeUpPrefix(namesp)
+      if (!prefix && !this.flags.includes('m')) prefix = this.makeUpPrefix(namesp)
       namespaceCounts[namesp] = true
       return prefix + ':' + localid
     }
