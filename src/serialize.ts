@@ -72,20 +72,20 @@ export default function serialize (
         return executeCallback(null, documentString)
       case TurtleContentType:
       case TurtleLegacyContentType:
-        sz.setFlags('si') // Suppress = for sameAs and => for implies
+        sz.addFlags('si') // Suppress = for sameAs and => for implies
         documentString = sz.statementsToN3(newSts)
         return executeCallback(null, documentString)
       case NTriplesContentType:
-        sz.setFlags('deinprstux') // Suppress nice parts of N3 to make ntriples
+        sz.addFlags('deinprstux') // Suppress nice parts of N3 to make ntriples
         documentString = sz.statementsToNTriples(newSts)
         return executeCallback(null, documentString)
       case JSONLDContentType:
-        sz.setFlags('si dr') // turtle + dr (means no default, no relative prefix)
+        sz.addFlags('si dr') // turtle + dr (means no default, no relative prefix)
         documentString = sz.statementsToJsonld(newSts) // convert via turtle
         return executeCallback(null, documentString)
       case NQuadsContentType:
       case NQuadsAltContentType: // @@@ just outpout the quads? Does not work for collections
-        sz.setFlags('deinprstux q') // Suppress nice parts of N3 to make ntriples
+        sz.addFlags('deinprstux q') // Suppress nice parts of N3 to make ntriples
         documentString = sz.statementsToNTriples(newSts) // q in flag means actually quads
         return executeCallback(null, documentString)
       default:
