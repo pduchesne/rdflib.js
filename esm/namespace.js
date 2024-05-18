@@ -1,5 +1,4 @@
 import RDFlibNamedNode from './named-node';
-
 /**
  * Gets a namespace for the specified namespace's URI
  * @param nsuri - The URI for the namespace

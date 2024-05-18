@@ -12,6 +12,7 @@ import * as Util from './utils-js'
 import CanonicalDataFactory from './factories/canonical-data-factory'
 import { createXSD } from './xsd'
 import solidNs from 'solid-namespace'
+import * as ttl2jsonld from '@frogcat/ttl2jsonld'
 
 
 export default function createSerializer(store) {
@@ -40,7 +41,7 @@ export class Serializer {
     this.keywords = ['a'] // The only one we generate at the moment
     this.prefixchars = 'abcdefghijklmnopqustuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
     this.incoming = null // Array not calculated yet
-    this.formulas = [] // remebering original formulae from hashes
+    this.formulas = [] // remembering original formulae from hashes
     this.store = store
     this.rdfFactory = store.rdfFactory || CanonicalDataFactory
     this.xsd = createXSD(this.rdfFactory)
@@ -72,6 +73,46 @@ export class Serializer {
     }
     return this.store.fromNT(s)
   }
+
+  /**
+   * Defines a set of [prefix, namespace] pairs to be used by this Serializer instance.
+   * Overrides previous prefixes if any
+   * @param namespaces
+   * @return {Serializer}
+   */
+  setNamespaces(namespaces) {
+    for (var px in namespaces) {
+      this.setPrefix(px, namespaces[px])
+    }
+    return this
+  }
+
+  /**
+   * Defines a namespace prefix, overriding any existing prefix for that URI
+   * @param prefix
+   * @param uri
+   */
+  setPrefix(prefix, uri) {
+    if (prefix.slice(0, 7) === 'default') return // Try to weed these out
+    if (prefix.slice(0, 2) === 'ns') return //  From others inferior algos
+    if (!prefix || !uri) return // empty strings not suitable
+
+    // remove any existing prefix targeting this uri
+    // for (let existingPrefix in this.namespaces) {
+    //   if (this.namespaces[existingPrefix] == uri)
+    //     delete this.namespaces[existingPrefix];
+    // }
+
+    // remove any existing mapping for this prefix
+    for (let existingNs in this.prefixes) {
+      if (this.prefixes[existingNs] == prefix)
+        delete this.prefixes[existingNs];
+    }
+
+    this.prefixes[uri] = prefix
+    this.namespaces[prefix] = uri
+  }
+
 
   /* Accumulate Namespaces
   **
@@ -220,7 +261,7 @@ export class Serializer {
     } else if (this.flags.indexOf('u') >= 0) { // Unicode encoding NTriples style
       uri = backslashUify(uri)
     } else {
-      uri = hexify(uri)
+      uri = hexify(decodeURI(uri))
     }
     return '<' + uri + '>'
   }
@@ -300,12 +341,12 @@ export class Serializer {
       for (var i = 0; i < tree.length; i++) {
         var branch = tree[i]
         var s2 = (typeof branch === 'string') ? branch : treeToLine(branch)
-        // Note the space before the dot in case statement ends 123. which is in fact allowed but be conservative.
+        // Note the space before the dot in case statement ends with 123 or colon. which is in fact allowed but be conservative.
         if (i !== 0) {
           var ch = str.slice(-1) || ' '
           if (s2 === ',' || s2 === ';') {
             // no gap
-          } else if (s2 === '.' && !('0123456789.'.includes(ch))) { // no gap except after number
+          } else if (s2 === '.' && !('0123456789.:'.includes(ch))) { // no gap except after number and colon
             // no gap
           } else {
             str += ' ' // separate from previous token
@@ -340,7 +381,13 @@ export class Serializer {
         if (typeof branch === 'string') {
           if (branch.length === 1 && str.slice(-1) === '\n') {
             if (',.;'.indexOf(branch) >= 0) {
-              str = str.slice(0, -1) + branch + '\n' //  slip punct'n on end
+              str = str.slice(0, -1)
+              // be conservative and ensure a whitespace between some chars and a final dot, as in treeToLine above
+              if (branch == '.' && '0123456789.:'.includes(str.charAt(str.length-1))) {
+                str += ' '
+                lastLength += 1
+              }
+              str += branch + '\n' //  slip punct'n on end
               lastLength += 1
               continue
             }
@@ -454,7 +501,7 @@ export class Serializer {
 
     function prefixDirectivesMethod () {
       var str = ''
-      if (this.defaultNamespace) {
+      if (this.flags.indexOf('d') < 0 && this.defaultNamespace) {
         str += '@prefix : ' + this.explicitURI(this.defaultNamespace) + '.\n'
       }
       for (var ns in this.prefixes) {
@@ -490,7 +537,7 @@ export class Serializer {
             case 'http://www.w3.org/2001/XMLSchema#integer':
               return val
 
-            case 'http://www.w3.org/2001/XMLSchema#decimal': // In urtle must have dot
+            case 'http://www.w3.org/2001/XMLSchema#decimal': // In Turtle, must have dot
               if (val.indexOf('.') < 0) val += '.0'
               return val
 
@@ -515,6 +562,8 @@ export class Serializer {
         return str
       case 'NamedNode':
         return this.symbolToN3(expr)
+      case 'DefaultGraph':
+        return '';
       default:
         throw new Error('Internal: atomicTermToN3 cannot handle ' + expr + ' of termType: ' + expr.termType)
     }
@@ -963,6 +1012,27 @@ export class Serializer {
     var tree2 = [str, tree, '</rdf:RDF>'] // @@ namespace declrations
     return XMLtreeToString(tree2, -1)
   } // End @@ body
+
+  statementsToJsonld (sts) {
+    // ttl2jsonld creates context keys for all ttl prefix
+    // context keys must be absolute IRI ttl2jsonld@0.0.8
+    /* function findId (itemObj) {
+      if (itemObj['@id']) {
+        const item = itemObj['@id'].split(':')
+        if (keys[item[0]]) itemObj['@id'] = jsonldObj['@context'][item[0]] + item[1]
+      }
+      const itemValues = Object.values(itemObj)
+      for (const i in itemValues) {
+        if (typeof itemValues[i] !== 'string') { // @list contains array
+          findId(itemValues[i])
+        }
+      }
+    } */
+    const turtleDoc = this.statementsToN3(sts)
+    const jsonldObj = ttl2jsonld.parse(turtleDoc)
+    return JSON.stringify(jsonldObj, null, 2)
+  }
+
 }
 
 // String escaping utilities

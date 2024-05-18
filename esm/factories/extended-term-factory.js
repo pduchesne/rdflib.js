@@ -1,26 +1,19 @@
 import _defineProperty from "@babel/runtime/helpers/defineProperty";
-
-var _supports;
-
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) { symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); } keys.push.apply(keys, symbols); } return keys; }
-
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
-
+function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
+function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
 import Collection from '../collection';
 import CanonicalDataFactory from './canonical-data-factory';
 import { CollectionTermType } from '../types';
 import { Feature } from './factory-types';
 import { isCollection, isVariable } from '../utils/terms';
 import Variable from '../variable';
-
 /**
  * Data factory which also supports Collections
  *
  * Necessary for preventing circular dependencies.
  */
 var ExtendedTermFactory = _objectSpread(_objectSpread({}, CanonicalDataFactory), {}, {
-  supports: (_supports = {}, _defineProperty(_supports, Feature.collections, true), _defineProperty(_supports, Feature.defaultGraphType, false), _defineProperty(_supports, Feature.equalsMethod, true), _defineProperty(_supports, Feature.identity, false), _defineProperty(_supports, Feature.id, true), _defineProperty(_supports, Feature.reversibleId, false), _defineProperty(_supports, Feature.variableType, true), _supports),
-
+  supports: _defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty(_defineProperty({}, Feature.collections, true), Feature.defaultGraphType, false), Feature.equalsMethod, true), Feature.identity, false), Feature.id, true), Feature.reversibleId, false), Feature.variableType, true),
   /**
    * Creates a new collection
    * @param elements - The initial element
@@ -30,26 +23,21 @@ var ExtendedTermFactory = _objectSpread(_objectSpread({}, CanonicalDataFactory),
   },
   id: function id(term) {
     var _this = this;
-
     if (isCollection(term)) {
       return "( ".concat(term.elements.map(function (e) {
         return _this.id(e);
       }).join(', '), " )");
     }
-
     if (isVariable(term)) {
       return Variable.toString(term);
     }
-
     return CanonicalDataFactory.id(term);
   },
   termToNQ: function termToNQ(term) {
     if (term.termType === CollectionTermType) {
       return Collection.toNT(term);
     }
-
     return CanonicalDataFactory.termToNQ(term);
   }
 });
-
 export default ExtendedTermFactory;

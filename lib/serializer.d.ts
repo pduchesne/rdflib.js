@@ -25,6 +25,19 @@ export class Serializer {
     setFlags(flags: any): Serializer;
     toStr(x: any): any;
     fromStr(s: any): any;
+    /**
+     * Defines a set of [prefix, namespace] pairs to be used by this Serializer instance.
+     * Overrides previous prefixes if any
+     * @param namespaces
+     * @return {Serializer}
+     */
+    setNamespaces(namespaces: any): Serializer;
+    /**
+     * Defines a namespace prefix, overriding any existing prefix for that URI
+     * @param prefix
+     * @param uri
+     */
+    setPrefix(prefix: any, uri: any): void;
     suggestPrefix(prefix: any, uri: any): void;
     suggestNamespaces(namespaces: any): Serializer;
     checkIntegrity(): void;
@@ -50,5 +63,6 @@ export class Serializer {
     symbolToN3(x: any): any;
     writeStore(write: any): void;
     statementsToXML(sts: any): string;
+    statementsToJsonld(sts: any): string;
 }
-import NamedNode from "./named-node";
+import NamedNode from './named-node';

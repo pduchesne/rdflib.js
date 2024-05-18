@@ -1,12 +1,12 @@
 import IndexedFormula from './store';
-import Fetcher from './fetcher';
+import Fetcher, { Options } from './fetcher';
 import Statement from './statement';
 import RDFlibNamedNode from './named-node';
-import { BlankNode, NamedNode, Quad_Subject, Quad, Term } from './tf-types';
+import { BlankNode, NamedNode, Quad, Quad_Subject, Term } from './tf-types';
 interface UpdateManagerFormula extends IndexedFormula {
     fetcher: Fetcher;
 }
-declare type CallBackFunction = (uri: string, ok: boolean, message: string, response: Error | Response) => {} | void;
+type CallBackFunction = (uri: string, ok: boolean, message: string, response: Error | Response) => {} | void;
 /**
 * The UpdateManager is a helper object for a store.
 * Just as a Fetcher provides the store with the ability to read and write,
@@ -27,13 +27,32 @@ export default class UpdateManager {
     constructor(store?: IndexedFormula);
     patchControlFor(doc: NamedNode): any;
     isHttpUri(uri: string): boolean;
+    /** Remove from the store HTTP authorization metadata
+    * The editable function below relies on copies we have in the store
+    * of the results of previous HTTP transactions. However, when
+    * the user logs in, then that data misrepresents what would happen
+    * if the user tried again.
+    */
+    flagAuthorizationMetadata(kb?: IndexedFormula): void;
     /**
      * Tests whether a file is editable.
      * If the file has a specific annotation that it is machine written,
      * for safety, it is editable (this doesn't actually check for write access)
      * If the file has wac-allow and accept patch headers, those are respected.
      * and local write access is determined by those headers.
-     * This version only looks at past HTTP requests, does not make new ones.
+     * This async version not only looks at past HTTP requests, it also makes new ones if necessary.
+     *
+     * @returns The method string N3PATCH or SPARQL or DAV or
+     *   LOCALFILE or false if known, undefined if not known.
+     */
+    checkEditable(uri: string | NamedNode, kb?: IndexedFormula): Promise<string | boolean | undefined>;
+    /**
+     * Tests whether a file is editable.
+     * If the file has a specific annotation that it is machine written,
+     * for safety, it is editable (this doesn't actually check for write access)
+     * If the file has wac-allow and accept patch headers, those are respected.
+     * and local write access is determined by those headers.
+     * This synchronous version only looks at past HTTP requests, does not make new ones.
      *
      * @returns The method string SPARQL or DAV or
      *   LOCALFILE or false if known, undefined if not known.
@@ -41,6 +60,7 @@ export default class UpdateManager {
     editable(uri: string | NamedNode, kb?: IndexedFormula): string | boolean | undefined;
     anonymize(obj: any): any;
     anonymizeNT(stmt: Quad): string;
+    nTriples(stmt: any): string;
     /**
      * Returns a list of all bnodes occurring in a statement
      * @private
@@ -50,7 +70,7 @@ export default class UpdateManager {
      * Returns a list of all bnodes occurring in a list of statements
      * @private
      */
-    statementArrayBnodes(sts: Quad[]): BlankNode[];
+    statementArrayBnodes(sts: ReadonlyArray<Quad>): BlankNode[];
     /**
      * Makes a cached list of [Inverse-]Functional properties
      * @private
@@ -86,7 +106,7 @@ export default class UpdateManager {
     /**
      * @private
      */
-    fire(uri: string, query: string, callbackFunction: CallBackFunction): Promise<void>;
+    fire(uri: string, query: string, callbackFunction: CallBackFunction, options?: Options): Promise<void>;
     /** return a statemnet updating function
      *
      * This does NOT update the statement.
@@ -148,16 +168,37 @@ export default class UpdateManager {
      */
     updateMany(deletions: ReadonlyArray<Statement>, insertions?: ReadonlyArray<Statement>): Promise<void[]>;
     /**
-     * This high-level function updates the local store iff the web is changed successfully.
+     * @private
+     *
+     * This helper function constructs SPARQL Update query from resolved arguments.
+     *
+     * @param ds: deletions array.
+     * @param is: insertions array.
+     * @param bnodes_context: Additional context to uniquely identify any blank nodes.
+     */
+    constructSparqlUpdateQuery(ds: ReadonlyArray<Statement>, is: ReadonlyArray<Statement>, bnodes_context: any): string;
+    /**
+     * @private
+     *
+     * This helper function constructs n3-patch query from resolved arguments.
+     *
+     * @param ds: deletions array.
+     * @param is: insertions array.
+     * @param bnodes_context: Additional context to uniquely identify any blanknodes.
+     */
+    constructN3PatchQuery(ds: ReadonlyArray<Statement>, is: ReadonlyArray<Statement>, bnodes_context: any): string;
+    /**
+     * This high-level function updates the local store if the web is changed successfully.
      * Deletions, insertions may be undefined or single statements or lists or formulae (may contain bnodes which can be indirectly identified by a where clause).
      * The `why` property of each statement must be the same and give the web document to be updated.
      * @param deletions - Statement or statements to be deleted.
      * @param insertions - Statement or statements to be inserted.
      * @param callback - called as callbackFunction(uri, success, errorbody)
      *           OR returns a promise
+     * @param options - Options for the fetch call
      */
-    update(deletions: ReadonlyArray<Statement>, insertions: ReadonlyArray<Statement>, callback?: (uri: string | undefined | null, success: boolean, errorBody?: string, response?: Response | Error) => void, secondTry?: boolean): void | Promise<void>;
-    updateDav(doc: Quad_Subject, ds: any, is: any, callbackFunction: any): null | Promise<void>;
+    update(deletions: ReadonlyArray<Statement>, insertions: ReadonlyArray<Statement>, callback?: (uri: string | undefined | null, success: boolean, errorBody?: string, response?: Response | Error) => void, secondTry?: boolean, options?: Options): void | Promise<void>;
+    updateDav(doc: Quad_Subject, ds: any, is: any, callbackFunction: any, options?: Options): null | Promise<void>;
     /**
      * Likely deprecated, since this lib no longer deals with browser extension
      *
@@ -165,8 +206,9 @@ export default class UpdateManager {
      * @param ds
      * @param is
      * @param callbackFunction
+     * @param options
      */
-    updateLocalFile(doc: NamedNode, ds: any, is: any, callbackFunction: any): void;
+    updateLocalFile(doc: NamedNode, ds: any, is: any, callbackFunction: any, options?: Options): void;
     /**
      * @throws {Error} On unsupported content type
      *

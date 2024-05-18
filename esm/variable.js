@@ -1,20 +1,15 @@
 import _classCallCheck from "@babel/runtime/helpers/classCallCheck";
 import _createClass from "@babel/runtime/helpers/createClass";
-import _assertThisInitialized from "@babel/runtime/helpers/assertThisInitialized";
-import _inherits from "@babel/runtime/helpers/inherits";
 import _possibleConstructorReturn from "@babel/runtime/helpers/possibleConstructorReturn";
 import _getPrototypeOf from "@babel/runtime/helpers/getPrototypeOf";
+import _inherits from "@babel/runtime/helpers/inherits";
 import _defineProperty from "@babel/runtime/helpers/defineProperty";
-
-function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
-
-function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
-
+function _callSuper(t, o, e) { return o = _getPrototypeOf(o), _possibleConstructorReturn(t, _isNativeReflectConstruct() ? Reflect.construct(o, e || [], _getPrototypeOf(t).constructor) : o.apply(t, e)); }
+function _isNativeReflectConstruct() { try { var t = !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); } catch (t) {} return (_isNativeReflectConstruct = function _isNativeReflectConstruct() { return !!t; })(); }
 import ClassOrder from './class-order';
 import Node from './node-internal';
 import { VariableTermType } from './types';
 import * as Uri from './uri';
-
 /**
 * Variables are placeholders used in patterns to be matched.
 * In cwm they are symbols which are the formula's list of quantified variables.
@@ -23,49 +18,33 @@ import * as Uri from './uri';
 * but the ? notation has an implicit base uri of 'varid:'
 */
 var Variable = /*#__PURE__*/function (_Node) {
-  _inherits(Variable, _Node);
-
-  var _super = _createSuper(Variable);
-
-  /** The base string for a variable's name */
-
-  /** The unique identifier of this variable */
-
   /**
    * Initializes this variable
    * @param name The variable's name
    */
   function Variable() {
     var _this;
-
     var name = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
-
     _classCallCheck(this, Variable);
-
-    _this = _super.call(this, name);
-
-    _defineProperty(_assertThisInitialized(_this), "termType", VariableTermType);
-
-    _defineProperty(_assertThisInitialized(_this), "base", 'varid:');
-
-    _defineProperty(_assertThisInitialized(_this), "classOrder", ClassOrder.Variable);
-
-    _defineProperty(_assertThisInitialized(_this), "isVar", 1);
-
-    _defineProperty(_assertThisInitialized(_this), "uri", void 0);
-
+    _this = _callSuper(this, Variable, [name]);
+    _defineProperty(_this, "termType", VariableTermType);
+    /** The base string for a variable's name */
+    _defineProperty(_this, "base", 'varid:');
+    _defineProperty(_this, "classOrder", ClassOrder.Variable);
+    _defineProperty(_this, "isVar", 1);
+    /** The unique identifier of this variable */
+    _defineProperty(_this, "uri", void 0);
     _this.base = 'varid:';
     _this.uri = Uri.join(name, _this.base);
     return _this;
   }
-
-  _createClass(Variable, [{
+  _inherits(Variable, _Node);
+  return _createClass(Variable, [{
     key: "equals",
     value: function equals(other) {
       if (!other) {
         return false;
       }
-
       return this.termType === other.termType && this.value === other.value;
     }
   }, {
@@ -90,12 +69,8 @@ var Variable = /*#__PURE__*/function (_Node) {
       if (variable.uri.slice(0, variable.base.length) === variable.base) {
         return "?".concat(variable.uri.slice(variable.base.length));
       }
-
       return "?".concat(variable.uri);
     }
   }]);
-
-  return Variable;
 }(Node);
-
 export { Variable as default };

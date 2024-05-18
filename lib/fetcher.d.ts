@@ -53,10 +53,10 @@ declare global {
     var solidFetcher: Function;
     var solidFetch: Function;
 }
-declare type UserCallback = (ok: boolean, message: string, response?: any) => void;
-declare type HTTPMethods = 'GET' | 'PUT' | 'POST' | 'PATCH' | 'HEAD' | 'DELETE' | 'CONNECT' | 'TRACE' | 'OPTIONS';
+type UserCallback = (ok: boolean, message: string, response?: any) => void;
+type HTTPMethods = 'GET' | 'PUT' | 'POST' | 'PATCH' | 'HEAD' | 'DELETE' | 'CONNECT' | 'TRACE' | 'OPTIONS';
 /** All valid inputs for initFetchOptions */
-declare type Options = Partial<AutoInitOptions>;
+export type Options = Partial<AutoInitOptions>;
 /** Initiated by initFetchOptions, which runs on load */
 export interface AutoInitOptions extends RequestInit {
     /** The used Fetch function */
@@ -117,7 +117,7 @@ declare class Handler {
     static pattern: RegExp;
     constructor(response: ExtendedResponse, dom?: Document);
 }
-declare type StatusValues = 
+type StatusValues = 
 /** No record of web access or record reset */
 undefined | 
 /** Has been requested, fetch in progress */
@@ -161,9 +161,9 @@ interface FetchCallbacks {
 interface BooleanMap {
     [uri: string]: boolean;
 }
-declare type Result = Response;
+type Result = Response;
 /** Differs from normal Fetch, has an extended Response type */
-declare type Fetch = (input: RequestInfo, init?: RequestInit) => Promise<ExtendedResponse>;
+type Fetch = (input: RequestInfo, init?: RequestInit) => Promise<ExtendedResponse>;
 interface CallbackifyInterface {
     fireCallbacks: Function;
 }
@@ -181,7 +181,7 @@ export default class Fetcher implements CallbackifyInterface {
     _fetch: Fetch;
     mediatypes: MediatypesMap;
     /** Denoting this session */
-    appNode: BlankNode;
+    appNode: NamedNode;
     /**
      * this.requested[uri] states:
      * undefined     no record of web access or records reset
@@ -370,8 +370,8 @@ export default class Fetcher implements CallbackifyInterface {
     createContainer(parentURI: string, folderName: string, data: string): Promise<Response>;
     invalidateCache(iri: string | NamedNode): void;
     /**
-     * A generic web opeation, at the fetch() level.
-     * does not invole the quadstore.
+     * A generic web operation, at the fetch() level.
+     * does not involve the quad store.
      *
      *  Returns promise of Response
      *  If data is returned, copies it to response.responseText before returning

@@ -28,18 +28,18 @@ export function heavyCompareSPO(x: any, y: any, g: any, uriMap: any): any;
  */
 export function output(o: string): void;
 /**
- * Returns a DOM from parsex XML.
+ * Returns a DOM from parsed XML.
  */
-export function parseXML(str: any, options: any): any;
+export function parseXML(str: any, options: any): Document;
 /**
  * Removes all statements equal to x from a
  */
 export function RDFArrayRemove(a: any, x: any): void;
 export function string_startswith(str: any, pref: any): boolean;
 export function stackString(e: any): string;
-import NamedNode from "./named-node";
-import log from "./log";
-import * as uri from "./uri";
+import NamedNode from './named-node';
+import log from './log';
+import * as uri from './uri';
 export namespace string {
     export { stringTemplate as template };
 }

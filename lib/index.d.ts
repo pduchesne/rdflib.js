@@ -1,6 +1,5 @@
 import BlankNode from './blank-node';
 import Collection from './collection';
-import * as convert from './convert';
 import Empty from './empty';
 import Fetcher from './fetcher';
 import Formula from './formula';
@@ -31,10 +30,18 @@ import Variable from './variable';
 import DataFactory from './factories/rdflib-data-factory';
 declare const fetcher: (store: Store, options: any) => Fetcher, graph: (features?: any, opts?: any) => Store, lit: (val: string, lang?: string | undefined, dt?: import("./tf-types").NamedNode | undefined) => Literal, st: (subject: import("./tf-types").Quad_Subject, predicate: import("./tf-types").Quad_Predicate, object: import("./tf-types").Quad_Object, graph?: import("./tf-types").Quad_Graph | undefined) => Statement<import("./types").SubjectType, import("./types").PredicateType, import("./types").ObjectType, import("./types").GraphType>, namedNode: (value: string) => NamedNode, variable: (value: string) => Variable, blankNode: (value?: string | undefined) => BlankNode, defaultGraph: () => import("./default-graph").default, literal: (value: string, languageOrDatatype?: string | import("./tf-types").NamedNode | undefined) => Literal, quad: (subject: import("./tf-types").Term, predicate: import("./tf-types").Term, object: import("./tf-types").Term, graph?: import("./tf-types").Term | undefined) => Statement<import("./types").SubjectType, import("./types").PredicateType, import("./types").ObjectType, import("./types").GraphType>, triple: (subject: import("./tf-types").Term, predicate: import("./tf-types").Term, object: import("./tf-types").Term, graph?: import("./tf-types").Term | undefined) => import("./tf-types").Quad<any, any, any, any>;
 declare const fromNT: (str: any) => any;
-declare const term: <T extends import("./types").FromValueReturns<any>>(value: import("./types").ValueType) => T;
+declare const term: <T extends import("./types").FromValueReturns>(value: import("./types").ValueType) => T;
 declare const NextId: number;
 export * from './utils/terms';
 export type { AutoInitOptions, ExtendedResponse, FetchError } from './fetcher';
-export { BlankNode, Collection, convert, DataFactory, Empty, Fetcher, Formula, Store, jsonParser, Literal, log, N3Parser, NamedNode, Namespace, Node, parse, Query, queryToSPARQL, RDFaProcessor, RDFParser, serialize, Serializer, SPARQLToQuery, sparqlUpdateParser, Statement, term, UpdateManager, UpdatesSocket, UpdatesVia, uri, Util, Variable, Store as IndexedFormula, // Alias
+export { BlankNode, Collection, DataFactory, Empty, Fetcher, Formula, Store, jsonParser, Literal, log, N3Parser, NamedNode, Namespace, Node, parse, Query, queryToSPARQL, RDFaProcessor, RDFParser, serialize, Serializer, SPARQLToQuery, sparqlUpdateParser, Statement, term, UpdateManager, UpdatesSocket, UpdatesVia, uri, Util, Variable, Store as IndexedFormula, // Alias
 NextId, fromNT, fetcher, graph, lit, st, namedNode as sym, blankNode, defaultGraph, literal, namedNode, quad, triple, variable, };
 export { termValue } from './utils/termValue';
+export declare class ConnectedStore extends Store {
+    fetcher: Fetcher;
+    constructor(features: any);
+}
+export declare class LiveStore extends ConnectedStore {
+    updater: UpdateManager;
+    constructor(features: any);
+}

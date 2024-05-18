@@ -198,7 +198,7 @@ export default class RDFParser {
 
   /**
    * Build our initial scope frame and parse the DOM into triples
-   * @param {DOMTree} document The DOM to parse
+   * @param {HTMLDocument} document The DOM to parse
    * @param {String} base The base URL to use
    * @param {Object} why The context to which this resource belongs
    */
@@ -330,7 +330,8 @@ export default class RDFParser {
               frame.datatype = RDFParser.ns.RDF + 'XMLLiteral'
               frame = this.buildFrame(frame)
               // Don't include the literal node, only its children
-              frame.addLiteral(dom.childNodes)
+              // see https://github.com/linkeddata/rdflib.js/issues/75
+              frame.addLiteral(dom.innerHTML || dom.childNodes)
               dig = false
             } else if (nv === 'Resource') {
               frame = this.buildFrame(frame, frame.element)

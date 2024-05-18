@@ -1,6 +1,5 @@
 import _classCallCheck from "@babel/runtime/helpers/classCallCheck";
 import _createClass from "@babel/runtime/helpers/createClass";
-
 /*
  * Updates-Via
  */
@@ -8,14 +7,12 @@ import DataFactory from './factories/rdflib-data-factory';
 export var UpdatesSocket = /*#__PURE__*/function () {
   function UpdatesSocket(parent, via) {
     _classCallCheck(this, UpdatesSocket);
-
     this.parent = parent;
     this.via = via;
     this.connected = false;
     this.pending = {};
     this.subscribed = {};
     this.socket = {};
-
     try {
       this.socket = new WebSocket(via);
       this.socket.onopen = this.onOpen;
@@ -26,8 +23,7 @@ export var UpdatesSocket = /*#__PURE__*/function () {
       this.onError(error);
     }
   }
-
-  _createClass(UpdatesSocket, [{
+  return _createClass(UpdatesSocket, [{
     key: "_decode",
     value: function _decode(q) {
       var elt;
@@ -38,33 +34,26 @@ export var UpdatesSocket = /*#__PURE__*/function () {
       var ref1;
       var v;
       r = {};
-
       ref = function () {
         var j, len, ref, results;
         ref = q.split('&');
         results = [];
-
         for (j = 0, len = ref.length; j < len; j++) {
           elt = ref[j];
           results.push(elt.split('='));
         }
-
         return results;
       }();
-
       for (i in ref) {
         elt = ref[i];
         ref1 = [decodeURIComponent(elt[0]), decodeURIComponent(elt[1])];
         k = ref1[0];
         v = ref1[1];
-
         if (r[k] == null) {
           r[k] = [];
         }
-
         r[k].push(v);
       }
-
       return r;
     }
   }, {
@@ -78,7 +67,6 @@ export var UpdatesSocket = /*#__PURE__*/function () {
     key: "_subscribe",
     value: function _subscribe(uri) {
       this._send('sub', uri, '');
-
       this.subscribed[uri] = true;
       return this.subscribed[uri];
     }
@@ -87,11 +75,9 @@ export var UpdatesSocket = /*#__PURE__*/function () {
     value: function onClose(e) {
       var uri;
       this.connected = false;
-
       for (uri in this.subscribed) {
         this.pending[uri] = true;
       }
-
       this.subscribed = {};
       return this.subscribed;
     }
@@ -105,7 +91,6 @@ export var UpdatesSocket = /*#__PURE__*/function () {
     value: function onMessage(e) {
       var base, message;
       message = e.data.split(' ');
-
       if (message[0] === 'ping') {
         return typeof (base = this.socket).send === 'function' ? base.send('pong ' + message.slice(1).join(' ')) : void 0;
       } else if (message[0] === 'pub') {
@@ -118,12 +103,10 @@ export var UpdatesSocket = /*#__PURE__*/function () {
       var results, uri;
       this.connected = true;
       results = [];
-
       for (uri in this.pending) {
         delete this.pending[uri];
         results.push(this._subscribe(uri));
       }
-
       return results;
     }
   }, {
@@ -137,36 +120,28 @@ export var UpdatesSocket = /*#__PURE__*/function () {
       }
     }
   }]);
-
-  return UpdatesSocket;
 }();
 export var UpdatesVia = /*#__PURE__*/function () {
   function UpdatesVia(fetcher) {
     _classCallCheck(this, UpdatesVia);
-
     this.fetcher = fetcher;
     this.graph = {};
     this.via = {};
     this.fetcher.addCallback('headers', this.onHeaders);
   }
-
-  _createClass(UpdatesVia, [{
+  return _createClass(UpdatesVia, [{
     key: "onHeaders",
     value: function onHeaders(d) {
       var etag, uri, via;
-
       if (d.headers == null) {
         return true;
       }
-
       if (typeof WebSocket === 'undefined' || WebSocket === null) {
         return true;
       }
-
       etag = d.headers['etag'];
       via = d.headers['updates-via'];
       uri = d.uri;
-
       if (etag && via) {
         this.graph[uri] = {
           etag: etag,
@@ -174,7 +149,6 @@ export var UpdatesVia = /*#__PURE__*/function () {
         };
         this.register(via, uri);
       }
-
       return true;
     }
   }, {
@@ -188,10 +162,7 @@ export var UpdatesVia = /*#__PURE__*/function () {
       if (this.via[via] == null) {
         this.via[via] = new UpdatesSocket(this, via);
       }
-
       return this.via[via].subscribe(uri);
     }
   }]);
-
-  return UpdatesVia;
 }();

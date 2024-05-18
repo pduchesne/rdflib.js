@@ -1,13 +1,9 @@
 import _defineProperty from "@babel/runtime/helpers/defineProperty";
-
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) { symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); } keys.push.apply(keys, symbols); } return keys; }
-
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
-
+function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
+function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
 import IndexedFormula from '../store';
 import Fetcher from '../fetcher';
 import ExtendedTermFactory from './extended-term-factory';
-
 /** Full RDFLib.js Data Factory */
 var RDFlibDataFactory = _objectSpread(_objectSpread({}, ExtendedTermFactory), {}, {
   /**
@@ -18,7 +14,6 @@ var RDFlibDataFactory = _objectSpread(_objectSpread({}, ExtendedTermFactory), {}
   fetcher: function fetcher(store, options) {
     return new Fetcher(store, options);
   },
-
   /**
    * Creates a new graph (store)
    */
@@ -29,7 +24,6 @@ var RDFlibDataFactory = _objectSpread(_objectSpread({}, ExtendedTermFactory), {}
       rdfFactory: ExtendedTermFactory
     });
   },
-
   /**
    * Creates a new literal node
    * @param val The lexical value
@@ -39,7 +33,6 @@ var RDFlibDataFactory = _objectSpread(_objectSpread({}, ExtendedTermFactory), {}
   lit: function lit(val, lang, dt) {
     return this.literal('' + val, lang || dt);
   },
-
   /**
    * Creates a new statement
    * @param subject The subject
@@ -51,5 +44,4 @@ var RDFlibDataFactory = _objectSpread(_objectSpread({}, ExtendedTermFactory), {}
     return this.quad(subject, predicate, object, graph);
   }
 });
-
 export default RDFlibDataFactory;

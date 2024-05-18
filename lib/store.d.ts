@@ -10,7 +10,7 @@ import NamedNode from './named-node';
 import Fetcher from './fetcher';
 import { Quad_Graph, NamedNode as TFNamedNode, Quad_Object, Quad_Predicate, Quad, Quad_Subject, Term } from './tf-types';
 import BlankNode from './blank-node';
-declare type FeaturesType = Array<('sameAs' | 'InverseFunctionalProperty' | 'FunctionalProperty')> | undefined;
+type FeaturesType = Array<('sameAs' | 'InverseFunctionalProperty' | 'FunctionalProperty')> | undefined;
 export { defaultGraphURI };
 /**
  * Indexed Formula aka Store
@@ -233,10 +233,11 @@ export default class IndexedFormula extends Formula {
      */
     remove(st: Quad | Quad[]): IndexedFormula;
     /**
-     * Removes all statements in a doc
+     * Removes all statements in a doc, along with the related metadata including request/response/status
      * @param doc - The document / graph
      */
     removeDocument(doc: Quad_Graph): IndexedFormula;
+    removeMetadata(doc: Quad_Graph): IndexedFormula;
     /**
      * Remove all statements matching args (within limit) *
      * @param subj The subject
@@ -299,4 +300,5 @@ export default class IndexedFormula extends Formula {
      * @param term
      */
     uris(term: Quad_Subject): string[];
+    serialize(base: any, contentType: any, provenance: any, options?: any): string | undefined;
 }
