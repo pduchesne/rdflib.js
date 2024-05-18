@@ -577,4 +577,30 @@ const jsonldCollection1 = `{
       expect(res?.toString()).not.to.contain("%2520")
     })
   })
+
+    describe('namespaces', () => {
+        it('disable prefix make up', () => {
+            const doc = sym("https://doc.example");
+            const statement = st(
+                sym('https://example.com/subject'),
+                sym('http://schema.org/predicate'),
+                sym('https://example.com/object/'),
+                doc
+            )
+            const kb = graph();
+            kb.setPrefixForURI("example", "https://example.com/")
+            kb.setPrefixForURI("schema2", "http://schema.org/")
+            kb.add(statement)
+
+            const result = serialize(doc, kb, null, 'text/turtle', undefined, {flags: 'm'});
+
+            expect(result).to.equal(`@prefix : <#>.
+@prefix schema: <http://schema.org/>.
+@prefix example: <https://example.com/>.
+
+example:subject schema:predicate <https://example.com/object/>.
+
+`)
+        });
+    });
 })
