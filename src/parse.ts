@@ -36,6 +36,14 @@ export default function parse (
   try {
     if (contentType === N3ContentType || contentType === TurtleContentType) {
       var p = N3Parser(kb, kb, base, base, null, null, '', null)
+
+      // the N3Parser does not register the namespace for an empty prefix
+      // --> do it afterwards
+      if ('setPrefixForURI' in kb && p._bindings['']) {
+        //@ts-ignore
+        kb.setPrefixForURI('', p._bindings['']);
+      }
+
       p.loadBuf(str)
       executeCallback()
     } else if (contentType === RDFXMLContentType) {
